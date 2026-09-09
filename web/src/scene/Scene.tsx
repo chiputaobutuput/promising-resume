@@ -630,10 +630,14 @@ function Man2({
           const aimDist = THREE.MathUtils.clamp(rawDist, 2.4, 4.0)
           dollyPos.current.copy(stickerPos.current).add(tmpVec.current.normalize().multiplyScalar(aimDist))
           camera.position.lerp(dollyPos.current, aimW)
-          // 朝向贴纸（先居中 lookAt，再绕世界 Y 偏转把贴纸让到屏幕左侧可见区 NDC x≈-0.7）
+          // 朝向贴纸（先居中 lookAt，再绕世界 Y 偏转把贴纸让到目标屏幕位置）。
           aimMat.current.lookAt(camera.position, stickerPos.current, camera.up)
           aimQuat.current.setFromRotationMatrix(aimMat.current)
-          const targetNdcX = isMobile.current ? -0.7 : -0.72
+          // 末节点（项目经历）：贴纸右移紧贴履历面板左缘（NDC x≈0），3D 人物主体同框露出；
+          // 其余节点：贴纸让到屏幕左侧可见区（NDC x≈-0.72）。
+          const targetNdcX = k === M - 1
+            ? (isMobile.current ? -0.2 : 0.0)
+            : (isMobile.current ? -0.7 : -0.72)
           const halfW = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * camera.aspect
           const yawAngle = Math.atan(-targetNdcX * halfW)
           aimYaw.current.setFromAxisAngle(camera.up, -yawAngle)
