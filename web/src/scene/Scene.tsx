@@ -633,11 +633,21 @@ function Man2({
           // 朝向贴纸（先居中 lookAt，再绕世界 Y 偏转把贴纸让到目标屏幕位置）。
           aimMat.current.lookAt(camera.position, stickerPos.current, camera.up)
           aimQuat.current.setFromRotationMatrix(aimMat.current)
-          // 末节点（项目经历）：贴纸右移紧贴履历面板左缘（NDC x≈0），3D 人物主体同框露出；
+          // 末节点（项目经历）：贴纸动态停靠在履历面板（.glass-rail）左缘外侧，
+          // 位置随窗口宽度自适应，确保贴纸不被面板遮挡、3D 人物主体同框露出；
           // 其余节点：贴纸让到屏幕左侧可见区（NDC x≈-0.72）。
-          const targetNdcX = k === M - 1
-            ? (isMobile.current ? -0.2 : 0.0)
-            : (isMobile.current ? -0.7 : -0.72)
+          let targetNdcX: number
+          if (k === M - 1 && !isMobile.current) {
+            const rail = document.querySelector('.glass-rail')
+            const panelLeft = rail
+              ? (rail.getBoundingClientRect().left / window.innerWidth) * 2 - 1
+              : 0.29
+            // 贴纸水平半宽随水平视野（宽高比）缩放，另留 0.03 间隙
+            const stickHalf = 0.28 / Math.max(camera.aspect, 0.6)
+            targetNdcX = THREE.MathUtils.clamp(panelLeft - stickHalf - 0.03, -0.9, 0.13)
+          } else {
+            targetNdcX = isMobile.current ? -0.7 : -0.72
+          }
           const halfW = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * camera.aspect
           const yawAngle = Math.atan(-targetNdcX * halfW)
           aimYaw.current.setFromAxisAngle(camera.up, -yawAngle)
