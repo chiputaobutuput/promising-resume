@@ -139,7 +139,7 @@ export default function App() {
       <LoadingScreen />
 
       {/* 鼠标彩带拖尾（全局固定层，不阻挡交互） */}
-      <Ribbons colors={['#00ff88', '#4cc9f0']} baseThickness={13} maxAge={420} />
+      <Ribbons colors={['#00ff88', '#4cc9f0']} baseThickness={13} maxAge={900} />
 
       {/* 固定的 3D 背景 */}
       <div className="scene-bg">

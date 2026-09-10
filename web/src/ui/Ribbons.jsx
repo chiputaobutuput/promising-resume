@@ -177,8 +177,11 @@ const Ribbons = ({
 
         for (let i = 1; i < line.points.length; i++) {
           if (isFinite(maxAge) && maxAge > 0) {
-            const segmentDelay = maxAge / (line.points.length - 1);
-            const alpha = Math.min(1, (dt * speedMultiplier) / segmentDelay);
+            // 帧率无关的指数跟随：每段链点滞后 maxAge/(点数-1) 毫秒。
+            // 不能用线性 dt/τ 系数——它在 60/30fps 下会饱和到 1，
+            // 导致所有点同帧塌缩到鼠标位置，彩带长度为 0（什么都画不出来）。
+            const segTau = maxAge / (line.points.length - 1);
+            const alpha = 1 - Math.exp(-dt / segTau);
             line.points[i].lerp(line.points[i - 1], alpha);
           } else {
             line.points[i].lerp(line.points[i - 1], 0.9);
