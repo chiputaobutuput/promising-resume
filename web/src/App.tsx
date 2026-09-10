@@ -83,7 +83,7 @@ function Hero({ lang, cueOpacity, ready }: { lang: Lang; cueOpacity: MotionValue
             <span className="tv-rise-mask" aria-hidden="true">
               {title.split('').map((ch, i) => (
                 <span className="tv-char" key={i} style={{ animationDelay: `${0.15 + i * 0.14}s` }}>
-                  {ch}
+                  <span className="tv-char-fill">{ch}</span>
                 </span>
               ))}
             </span>

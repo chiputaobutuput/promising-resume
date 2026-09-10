@@ -2894,12 +2894,12 @@ body::after {
 /* ============================================================ */
 
 /* 标题：白色粗斜体 + 扫描线填充 + 青/品红 RGB 色差 + 绿色光晕。
-   注意：
-   1. 扫描线 background-clip:text 必须落在每个 .tv-char 字块自身上
-      （inline-block 变换子元素不会透出父级的 background-clip:text）。
-   2. 色差/辉光滤镜挂在 h1 上，h1 不能设 overflow:hidden——「父级 filter +
-      overflow 裁剪 + 子元素 transform 动画」会让 Chrome 合成层偶发不绘制滤镜
-      （色差时有时无）。逐字升起的裁剪由内层 .tv-rise-mask 负责。 */
+   结构分两层，动画互不干扰：
+   - 外层 .tv-char：只负责入场升起（位移/透明度），单动画 tv-char-rise。
+   - 内层 .tv-char-fill：扫描线 background-clip:text + 色差 drop-shadow 滤镜 +
+     glitch 动画。滤镜挂在含文字的字块自身（不挂父级 h1），避免跨合成层投影
+     在部分 Chrome/GPU 上整层失效；与升起动画分属不同元素，避免同元素多动画冲突。
+   - 逐字升起的裁剪由 .tv-rise-mask 的 overflow:hidden 负责，h1 不裁剪。 */
 .about-title.tv-title {
   font-style: italic;
   font-weight: 900;
@@ -2908,14 +2908,10 @@ body::after {
   background-clip: border-box;
   color: transparent;
   text-shadow: none;
-  filter:
-    drop-shadow(-2.5px 0 rgba(34, 211, 238, 0.75))
-    drop-shadow(2.5px 1.5px rgba(255, 47, 214, 0.7))
-    drop-shadow(0 0 26px rgba(0, 255, 136, 0.28));
-  animation: tv-title-glitch 5.2s steps(1) infinite;
 }
 
-.about-title.tv-title .tv-char {
+.about-title.tv-title .tv-char-fill {
+  display: inline-block;
   background: repeating-linear-gradient(
     180deg,
     #f4f6f4 0px,
@@ -2926,6 +2922,11 @@ body::after {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  filter:
+    drop-shadow(-2.5px 0 rgba(34, 211, 238, 0.8))
+    drop-shadow(2.5px 1.5px rgba(255, 47, 214, 0.75))
+    drop-shadow(0 0 18px rgba(0, 255, 136, 0.22));
+  animation: tv-title-glitch 5.2s steps(1) infinite;
 }
 
 @keyframes tv-title-glitch {
@@ -2962,9 +2963,10 @@ body::after {
   overflow: hidden;
 }
 
-/* 单字入场：从下方斜切升起。
+/* 单字入场：外层 .tv-char 从下方斜切升起（只动 transform/opacity）。
    动画等加载遮罩撤下（.hero-ready）后才播放——线上模型加载较久，
-   若挂载即播，入场会被加载幕布完全遮住。 */
+   若挂载即播，入场会被加载幕布完全遮住。色差/glitch 在内层 .tv-char-fill，
+   与入场动画不在同一元素，互不干扰。 */
 .tv-char {
   display: inline-block;
   opacity: 0;
@@ -2972,7 +2974,7 @@ body::after {
   will-change: transform;
 }
 .hero-ready .tv-char {
-  animation: tv-char-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: tv-char-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes tv-char-rise {
