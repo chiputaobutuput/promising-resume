@@ -2894,12 +2894,15 @@ body::after {
 /* ============================================================ */
 
 /* 标题：白色粗斜体 + 扫描线填充 + 青/品红 RGB 色差 + 绿色光晕。
-   注意：扫描线 background-clip:text 必须落在每个 .tv-char 字块自身上
-   （inline-block 变换子元素不会透出父级的 background-clip:text）。 */
+   注意：
+   1. 扫描线 background-clip:text 必须落在每个 .tv-char 字块自身上
+      （inline-block 变换子元素不会透出父级的 background-clip:text）。
+   2. 色差/辉光滤镜挂在 h1 上，h1 不能设 overflow:hidden——「父级 filter +
+      overflow 裁剪 + 子元素 transform 动画」会让 Chrome 合成层偶发不绘制滤镜
+      （色差时有时无）。逐字升起的裁剪由内层 .tv-rise-mask 负责。 */
 .about-title.tv-title {
   font-style: italic;
   font-weight: 900;
-  overflow: hidden;
   background: none;
   -webkit-background-clip: border-box;
   background-clip: border-box;
@@ -2950,6 +2953,13 @@ body::after {
       drop-shadow(2.5px 1.5px rgba(255, 47, 214, 0.7))
       drop-shadow(0 0 26px rgba(0, 255, 136, 0.28));
   }
+}
+
+/* 逐字升起的裁剪层：overflow:hidden 放在这里（而不是 h1 上），
+   让字符从标题行下方滑入时被裁掉，h1 的色差滤镜则不受裁剪影响 */
+.tv-rise-mask {
+  display: block;
+  overflow: hidden;
 }
 
 /* 单字入场：从下方斜切升起。

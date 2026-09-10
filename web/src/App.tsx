@@ -80,11 +80,13 @@ function Hero({ lang, cueOpacity, ready }: { lang: Lang; cueOpacity: MotionValue
         {/* 入场动画放内层，避免其 fill 锁住 opacity 覆盖外层滚动 opacity */}
         <div className="about-intro">
           <motion.h1 className="about-title tv-title" style={{ y: titleY, letterSpacing: titleSpacing }} aria-label={title}>
-            {title.split('').map((ch, i) => (
-              <span className="tv-char" key={i} style={{ animationDelay: `${0.15 + i * 0.14}s` }} aria-hidden="true">
-                {ch}
-              </span>
-            ))}
+            <span className="tv-rise-mask" aria-hidden="true">
+              {title.split('').map((ch, i) => (
+                <span className="tv-char" key={i} style={{ animationDelay: `${0.15 + i * 0.14}s` }}>
+                  {ch}
+                </span>
+              ))}
+            </span>
           </motion.h1>
           <motion.p className="about-role tv-role" style={{ y: bodyY }}>{role}</motion.p>
           {paragraphs.map((p, i) => (
