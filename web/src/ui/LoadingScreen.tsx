@@ -5,7 +5,7 @@ import { useProgress } from '@react-three/drei'
 // 模型/贴图全部加载完（进度到过 100）后淡出并卸载，确保进入时场景已就绪。
 // 纯动态 UI：随真实进度填充的旋转圆环，无文字。
 // 用 CSS 过渡 + setTimeout 控制淡出/卸载（不依赖 rAF，后台/离屏也可靠）。
-export default function LoadingScreen() {
+export default function LoadingScreen({ onReveal }: { onReveal?: () => void } = {}) {
   const { progress } = useProgress()
   // reached：进度是否到过 100%（单向 false→true，避免分批加载的抖动）
   const [reached, setReached] = useState(false)
@@ -22,7 +22,10 @@ export default function LoadingScreen() {
   // 到过 100% 后：停留片刻 → 淡出 → 卸载（一次性，锁定不受后续进度变化影响）
   useEffect(() => {
     if (!reached) return
-    const t1 = setTimeout(() => setHiding(true), 400)
+    const t1 = setTimeout(() => {
+      setHiding(true)
+      onReveal?.() // 通知 App：遮罩开始撤下，可以播放入场动画
+    }, 400)
     const t2 = setTimeout(() => setRemoved(true), 1100)
     return () => {
       clearTimeout(t1)

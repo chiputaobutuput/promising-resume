@@ -54,7 +54,7 @@ function Typewriter({ text, start, speed = 34, delay = 500 }: { text: string; st
   )
 }
 
-function Hero({ lang, cueOpacity }: { lang: Lang; cueOpacity: MotionValue<number> }) {
+function Hero({ lang, cueOpacity, ready }: { lang: Lang; cueOpacity: MotionValue<number>; ready: boolean }) {
   const { title, role, paragraphs } = COPY[lang]
   const aboutRef = useRef(null)
   const inView = useInView(aboutRef, { once: true, margin: '0px 0px -10% 0px' })
@@ -71,7 +71,7 @@ function Hero({ lang, cueOpacity }: { lang: Lang; cueOpacity: MotionValue<number
   const bodyY = useTransform(scrollYProgress, [0, 1], [0, -40])
   const titleSpacing = useTransform(scrollYProgress, [0, 1], ['-0.055em', '0.04em'])
   return (
-    <section className="hero" id="about" ref={aboutRef}>
+    <section className={`hero${ready ? ' hero-ready' : ''}`} id="about" ref={aboutRef}>
       <motion.div
         className="about"
         lang={lang}
@@ -89,7 +89,7 @@ function Hero({ lang, cueOpacity }: { lang: Lang; cueOpacity: MotionValue<number
           <motion.p className="about-role tv-role" style={{ y: bodyY }}>{role}</motion.p>
           {paragraphs.map((p, i) => (
             <motion.p key={i} className="about-body tv-body" style={{ y: bodyY }}>
-              <Typewriter text={p} start={inView} speed={i === 0 ? 30 : 22} delay={i === 0 ? 500 : 1500} />
+              <Typewriter text={p} start={inView && ready} speed={i === 0 ? 30 : 22} delay={i === 0 ? 500 : 1500} />
             </motion.p>
           ))}
           <motion.div className="hero-actions" style={{ y: bodyY }}>
@@ -111,6 +111,9 @@ function Hero({ lang, cueOpacity }: { lang: Lang; cueOpacity: MotionValue<number
 export default function App() {
   const lang: Lang = 'zh'
   const { scrollY } = useScroll()
+  // 加载遮罩撤下后置 true：驱动 Hero 入场动画（标题逐字升起 + 打字机），
+  // 避免动画在模型加载期间被遮罩盖住、播完才露出。
+  const [ready, setReady] = useState(false)
   // 作品区蒙层：以作品区顶部从视口底进入到视口中部的进度，驱动 3D 渐暗 + 模糊
   const worksRef = useRef(null)
   const { scrollYProgress: worksProgress } = useScroll({
@@ -136,7 +139,7 @@ export default function App() {
   return (
     <>
       {/* 加载遮罩：模型全部加载完成前覆盖全屏，完成后淡出 */}
-      <LoadingScreen />
+      <LoadingScreen onReveal={() => setReady(true)} />
 
       {/* 鼠标彩带拖尾（全局固定层，不阻挡交互） */}
       <Ribbons colors={['#00ff88', '#4cc9f0']} baseThickness={13} maxAge={900} />
@@ -190,7 +193,7 @@ export default function App() {
 
       {/* 可滚动内容 */}
       <main className="content">
-        <Hero lang={lang} cueOpacity={cueOpacity} />
+        <Hero lang={lang} cueOpacity={cueOpacity} ready={ready} />
         <Resume lang={lang} />
         <Works lang={lang} innerRef={worksRef} />
         <footer className="contact" id="contact">

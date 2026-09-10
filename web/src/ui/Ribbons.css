@@ -7,7 +7,3 @@
   z-index: 70;
   overflow: hidden;
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .ribbons-container { display: none; }
-}

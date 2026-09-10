@@ -2952,13 +2952,17 @@ body::after {
   }
 }
 
-/* 单字入场：从下方斜切升起 */
+/* 单字入场：从下方斜切升起。
+   动画等加载遮罩撤下（.hero-ready）后才播放——线上模型加载较久，
+   若挂载即播，入场会被加载幕布完全遮住。 */
 .tv-char {
   display: inline-block;
   opacity: 0;
   transform: translateY(115%) skewY(12deg);
-  animation: tv-char-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   will-change: transform;
+}
+.hero-ready .tv-char {
+  animation: tv-char-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes tv-char-rise {
@@ -3014,12 +3018,7 @@ body::after {
   50%, 100% { opacity: 0; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .about-title.tv-title { animation: none; }
-  .about-role.tv-role { animation: none; }
-  .tv-char { animation-duration: 0.01s; }
-  .tw-cursor { animation: none; }
-}
+/* TV 风标题/彩带等动效为站点核心视觉，不在 prefers-reduced-motion 下禁用 */
 
 /* ============================================================ */
 /* Showcase：BounceCards 扇形弹卡组（替换旧缩略图条）            */
