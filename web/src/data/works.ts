@@ -59,7 +59,7 @@ const zh: WorksLang = {
       footer: '管理科学与工程 / 信息管理与信息系统',
     },
     {
-      id: 'practice', no: '02', title: '实践经历', tagline: '产品经理实习 · 策略运营实习',
+      id: 'practice', no: '02', title: '实践经历', tagline: '产品运营实习 · 策略运营实习',
       metric: '100%', metricLabel: 'Prompt 回归评测分类准确率', eyebrow: 'WORK EXPERIENCE',
       items: [
         { name: '特斯联科技集团', meta: '2026.03 — 2026.07', slug: 'teslink' },

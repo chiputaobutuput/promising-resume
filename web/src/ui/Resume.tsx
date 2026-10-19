@@ -89,7 +89,7 @@ const entries: ResumeEntry[] = [
     period: '2026.03 — 2026.07',
     category: '实践经历',
     place: '特斯联科技集团有限公司',
-    role: '智能硬件 App 产品经理实习生',
+    role: '产品运营实习生',
     showcase: {
       serial: 'FILE 03',
       label: 'BUTTONS',
